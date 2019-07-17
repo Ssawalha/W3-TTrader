@@ -1,4 +1,4 @@
 tokenfile.txt
-tokenf.txt
 *.db
 __pycache__/*
+*.zip
