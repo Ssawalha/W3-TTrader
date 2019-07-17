@@ -5,7 +5,7 @@ DIR = os.path.dirname(__file__)
 DBFILENAME = "test.db"
 DBPATH = os.path.join(DIR, DBFILENAME)
 
-########TODO Figure out UNIQUE()/FOREIGN KEY SQL syntax. update accounts/positions/trades to utilize UNIQUE & FOREIGN KEY 
+########TODO Figure out what size to assign varchar etc..
 def schema(dbpath=DBPATH):
     with sqlite3.connect(dbpath) as conn:
         cur = conn.cursor()

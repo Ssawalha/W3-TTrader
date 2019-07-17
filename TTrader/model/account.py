@@ -1,8 +1,5 @@
-# MOVE THE ORM TO A DIFFERENT FOLDER, ADJUST DB PATH
-#########################################################
-
 import sqlite3
-# from time import time
+from time import time
 from collections import OrderedDict
 from model.orm import ORM
 from model import util
@@ -17,8 +14,8 @@ class Account(ORM):
     createsql = '''CREATE TABLE {} (
         pk INTEGER PRIMARY KEY AUTOINCREMENT,
         username VARCHAR NOT NULL,
-        password_hash TEXT,
-        balance FLOAT, UNIQUE(username));'''.format(tablename)
+        password_hash TEXT, 
+        balance FLOAT, UNIQUE(username));'''.format(tablename) ##add column for salt
 
     def __init__(self, **kwargs):
         self.values = OrderedDict()
@@ -33,15 +30,16 @@ class Account(ORM):
 
     def set_password(self, password):
         self.values['password_hash'] = util.hash_password(password)
-
+    
     @classmethod
     def login(cls, username, password):
         """ login: is a class method of Account class,
              \nit checks the username and password_hash
              \nin ttrader.db accounts table
              \nand returns an instance of that account"""
-        return cls.one_from_where_clause("WHERE username = ? and password_hash = ?",
-                                    (username, password))
+        check_password_bool = util.check_password(username, password)
+        if check_password_bool == True:
+            return cls.one_from_where_clause("WHERE username = ?",(username,))
 
     def get_positions(self):
         return p.Position.all_with_username(self.values['username'])
@@ -85,7 +83,7 @@ class Account(ORM):
                 
                 transaction = t.Trade(buy_sell = 'Buy', username = self.values['username'], 
                  ticker = ticker, price = ticker_price, 
-                 shares = amount, time = 10.0) #fix time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                 shares = amount, time = time()) #fix time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 transaction.save() #created a new instance: transaction, and saved it to trades table
                 
                 position = self.get_position_for(ticker) #
@@ -111,7 +109,7 @@ class Account(ORM):
 
                 transaction = t.Trade(buy_sell = 'Sell', username = self.values['username'],
                  ticker = ticker, price = ticker_price,
-                 shares = amount, time = 10.0)
+                 shares = amount, time = time())
                 transaction.save()
                 self.values['balance'] += (ticker_price * amount)
                 self.update_row()

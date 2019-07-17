@@ -24,8 +24,7 @@ def create_account():
         password = input("Choose a password: ")
         password_confirm = input("Please, confirm your password: ")
     if password == password_confirm:
-        password_hash = util.hash_password(password)
-        return username, password_hash
+        return username, password
 
 def create_acc_success(username):
         print("\nWelcome {}! Your account has been created, you have a balance of $10,000.".format(username))

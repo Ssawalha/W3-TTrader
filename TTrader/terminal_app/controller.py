@@ -7,18 +7,17 @@ from model import position as p
 from model import util
 from terminal_app import view as v
 
-
 def start():
     selection = 0
     while selection != 3:
         selection = v.mainmenu()
 
         if selection == 1: #Create Account
-            user_name, pword_hash = v.create_account()
-            new_account = a.Account(username = user_name, password_hash = pword_hash, balance = 10000) #make it so that unique username
+            user_name, password = v.create_account()
+            new_account = a.Account(username = user_name, balance = 10000) #make it so that unique username
+            new_account.set_password(password)
             new_account.save()
             v.create_acc_success(new_account.values['username'])
-
 
         elif selection == 2: #Log In
             user_name, pword_hash = v.login_credentials()

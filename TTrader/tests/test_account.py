@@ -3,7 +3,7 @@ import sqlite3
 import os
 import unittest
 
-from model import orm
+from model.orm import ORM
 from model.account import Account
 from model.position import Position
 from model.trade import Trade
@@ -15,7 +15,7 @@ DIR = os.path.dirname(__file__)
 DBFILENAME = '_tests.db'
 DBPATH = os.path.join(DIR, DBFILENAME)
 
-orm.dbpath = DBPATH
+ORM.dbpath = DBPATH
 
 class TestAccount(unittest.TestCase):
     def setUp(self):
@@ -25,6 +25,25 @@ class TestAccount(unittest.TestCase):
     def tearDown(self):
         os.remove(DBPATH)
 
+    def test_hash_password(self):
+        password = '1234'
+        hashed_pw = util.hash_password(password)
+        self.assertIsInstance(hashed_pw, bytes, 'util.hash_password takes a string input, and returns a byte string (the hashed pw and salt)')
+
+    def test_check_password(self):
+        user = Account()
+        username = 'sami'
+        user_info = user.one_from_where_clause('WHERE username = ?', (username,))
+        self.assertIsInstance(user_info, Account, 'one_from_where_clause returns an account object where its username matches the username we gave it')
+        
+        hashed_pw = user_info.values['password_hash']
+        self.assertIsInstance(hashed_pw, bytes, 'hashed_pw from db')
+
+        password = '1234'
+        password = password.encode()
+        
+        self.assertEqual = (util.bcrypt.checkpw(password, hashed_pw), True) #returns True or False
+        
     def test_save_and_pk_load(self):
         user = Account(username = 'Sami')
         user.save()
@@ -67,14 +86,14 @@ class TestAccount(unittest.TestCase):
         self.assertIsInstance(trades[0], Trade, 'trades_for returns Trade objects')
     
     def test_login(self):
-        passwordhash = util.hash_password('1234')
-        user = Account.login('sami', passwordhash)
+        password = '1234'
+        user = Account.login('sami', password)
         self.assertIsInstance(user, Account, 'if the username and password match what is in db, login returns an Account object')
 
     def test_buy(self):
         user = Account.one_from_pk(1)
         user_balance_before = user.values['balance']
-        user.buy('aapl', 1)
+        user.buy('AAPL', 1)
         user_balance_after = (user_balance_before - util.lookup_price('aapl'))
         self.assertEqual(user.values['balance'], user_balance_after, 'buy if account balance > ticker_price * shares, account balance deducted')
         
@@ -96,13 +115,13 @@ class TestAccount(unittest.TestCase):
         user_balance_after = (user_balance_before + util.lookup_price('tsla'))
         self.assertEqual(user.values['balance'], user_balance_after, 'account balance increased for ticker_price * amount ')
         
-        transaction = user.trades_for('tsla')
+        transaction = user.trades_for('TSLA')
         self.assertIsInstance(transaction[2], Trade, 'trades_for returns Trade objects')
         self.assertEqual(transaction[2].values['buy_sell'], 'Sell')
         self.assertEqual(transaction[2].values['shares'], 1)
         self.assertEqual(transaction[2].values['username'], 'sami')
 
-        account_position = user.get_position_for('tsla') 
+        account_position = user.get_position_for('TSLA') 
         self.assertIsInstance(account_position, Position, 'get_position_for returns Position object')
         self.assertEqual(account_position.values['shares'], 4)
         self.assertEqual(account_position.values['username'], 'sami')

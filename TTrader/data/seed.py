@@ -1,5 +1,5 @@
 import os
-import time
+from time import time
 from model.orm import ORM
 from model.account import Account
 from model.trade import Trade
@@ -26,7 +26,7 @@ def seed(dbpath=DBPATH):
     tsla_position.save()
 
     tsla_price = util.lookup_price('tsla')
-    tsla_transaction = Trade(buy_sell='Buy', username=default.values['username'], ticker='tsla', price=tsla_price, shares = 5, time = 10.0) #fix time
+    tsla_transaction = Trade(buy_sell='Buy', username=default.values['username'], ticker='tsla', price=tsla_price, shares = 5, time = time()) #fix time
     tsla_transaction.save()
-    tsla_transaction1 = Trade(buy_sell='Sell', username=default.values['username'], ticker='tsla', price=tsla_price, shares = 1, time = 10.0)
+    tsla_transaction1 = Trade(buy_sell='Sell', username=default.values['username'], ticker='tsla', price=tsla_price, shares = 1, time = time())
     tsla_transaction1.save()
