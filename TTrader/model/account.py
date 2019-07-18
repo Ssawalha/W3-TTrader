@@ -3,8 +3,8 @@ from time import time
 from collections import OrderedDict
 from model.orm import ORM
 from model import util
-from model import position as p #<-- same as
-from model import trade as t    #<-- same as
+from model import position as p
+from model import trade as t    
 
 class Account(ORM):
 
@@ -15,7 +15,7 @@ class Account(ORM):
         pk INTEGER PRIMARY KEY AUTOINCREMENT,
         username VARCHAR NOT NULL,
         password_hash TEXT, 
-        balance FLOAT, UNIQUE(username));'''.format(tablename) ##add column for salt
+        balance FLOAT, UNIQUE(username));'''.format(tablename)
 
     def __init__(self, **kwargs):
         self.values = OrderedDict()
@@ -79,12 +79,12 @@ class Account(ORM):
                 raise ValueError
             else:
                 self.values['balance'] = (self.values['balance'] - ticker_price * amount)
-                self.save() #can change to save, saving new balance after purchase
+                self.save()
                 
                 transaction = t.Trade(buy_sell = 'Buy', username = self.values['username'], 
                  ticker = ticker, price = ticker_price, 
-                 shares = amount, time = time()) #fix time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                transaction.save() #created a new instance: transaction, and saved it to trades table
+                 shares = amount, time = time())
+                transaction.save()
                 
                 position = self.get_position_for(ticker) #
                 position.values['shares'] = (position.values['shares'] + amount)
@@ -115,30 +115,3 @@ class Account(ORM):
                 self.update_row()
         except:
             raise KeyError
-
-if __name__ == "__main__":
-    pass
-    # table1 = Account()
-    # table1.create_table()
-    # table2 = p.Position()
-    # table2.create_table()
-    # table3 = t.Trade()
-    # table3.create_table()
-
-    # account1 = Account(username = 'Sami', password_hash = '1234', balance = 1000)
-    # account1.save()
-    # account1.buy('tsla',2)
-    # account1.buy('aapl',1)
-    # account1.sell('tsla',1)
-    # user = 'sami'
-    # password = '1234'
-    # passwordhash = util.hash_password(password)
-    # # account = Account(username = user, password_hash = passwordhash, balance = 1000)
-    # # account.save()
-    # account = Account()
-    # logged_in = account.login(username = user, password = passwordhash)###########fix
-    # print (logged_in)
-
-    # logged_in.buy('aapl',1)
-
-    # print(logged_in.values['username'])

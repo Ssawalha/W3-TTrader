@@ -49,10 +49,3 @@ class Trade(ORM):
     def all_with_username(cls, username):
         '''return all Trades rows with username'''
         return cls.all_from_where_clause('WHERE username = ?', (username,))
-
-if __name__ == "__main__":
-    # trades_table = Trade()
-    # trades_table.create_table()
-    test_acc = account.Account(username = 'tester', balance = 300)
-    first_trade = Trade(username = test_acc.values['username'], ticker = 'aapl', price = util.lookup_price('aapl'), shares = 1, time = 10.0)
-    first_trade.save()

@@ -13,8 +13,8 @@ def start():
         selection = v.mainmenu()
 
         if selection == 1: #Create Account
-            user_name, password = v.create_account()
-            new_account = a.Account(username = user_name, balance = 10000) #make it so that unique username
+            user_name, password = v.create_account() #fix with try and except
+            new_account = a.Account(username = user_name, balance = 10000) #make it so that unique username | default bal of 10k
             new_account.set_password(password)
             new_account.save()
             v.create_acc_success(new_account.values['username'])
@@ -33,24 +33,53 @@ def start():
                         v.show_balance(activated.values['balance'])
 
                     elif login_selection == 2:#check all stocks in portfolio
-                        v.show_portfolio(activated)
+                        v.show_portfolio(activated.get_positions())
 
-                    elif login_selection == 3:#check 1 stock in portfolio
-                        v.show_position(activated)
+                    elif login_selection == 3:#check trade history
+                        v.show_all_trades(activated.get_trades()) #<-- change
 
                     elif login_selection == 4:#buy stocks
                         # v.buy_stock(activated)
-                        ticker, amount = v.choose_stock()
-                        confirm_purchase = v.confirm_purchase()
-                        # shares = v.shares()
-
+                        ticker = v.choose_stock()
+                        try:
+                            ticker_price = util.lookup_price(ticker)
+                        except:
+                            v.invalid_ticker()
+                            raise KeyError
+                        amount = v.num_of_shares(ticker, ticker_price)
+                        amount = int(amount)
+                        balance_before = activated.values['balance']
+                        total = (amount * ticker_price)
+                        if balance_before < ticker_price * amount:
+                            v.insufficient_funds()
+                        else:
+                            confirmation = v.confirm(ticker, amount, total)
+                            if confirmation == 'Y' or confirmation == 'y':
+                                activated.buy(ticker, amount)
+                                if (balance_before - total) == activated.values['balance']:
+                                    v.purchase_success()
 
                     elif login_selection == 5:#sell stocks
-                        pass
+                        ticker = v.choose_stock()
+                        try:
+                            ticker_price = util.lookup_price(ticker)
+                        except:
+                            v.invalid_ticker() 
+                            raise KeyError
+
+                        amount = v.num_of_shares(ticker, ticker_price)
+                        amount = int(amount)
+                        balance_before = activated.values['balance']
+                        total = (amount * ticker_price)
+                        if activated.get_position_for(ticker)['shares'] == 0: #look for ticker
+                            v.insufficient_shares() #Ticker not found.
+                        else:
+                            confirmation = v.confirm(ticker, amount, total)
+                            if confirmation == 'Y' or confirmation == 'y':
+                                activated.sell(ticker, amount)
+                                if (balance_before + total) == activated.values['balance']:
+                                    v.sale_success()
             else:
                 print("INVALID CREDENTIALS/LOGIN ERROR")###remove/change later
-        
-if __name__ == "__main__":
-    start()
 
 

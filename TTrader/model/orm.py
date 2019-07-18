@@ -1,7 +1,8 @@
 import sqlite3
+from data.schema import DBPATH
 
 class ORM:
-    dbpath = "test.db" #<-- can be overwritten in inhereting class if desired. in this case is the same for all tables
+    dbpath = DBPATH #<-- can be overwritten in inhereting class if desired. in this case is the same for all tables
     tablename = "" #<-- will be overwritten in inheriting classes
     fields = [] #<-- Column Headers in our tables | will be overwritten in inherting classes
 

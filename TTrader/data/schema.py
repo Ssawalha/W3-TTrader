@@ -2,7 +2,7 @@ import sqlite3
 import os
 
 DIR = os.path.dirname(__file__)
-DBFILENAME = "test.db"
+DBFILENAME = "ttrader.db"
 DBPATH = os.path.join(DIR, DBFILENAME)
 
 ########TODO Figure out what size to assign varchar etc..
