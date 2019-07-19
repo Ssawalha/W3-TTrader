@@ -84,38 +84,3 @@ def insufficient_funds():
 def insufficient_shares():
     print('!!! INSUFFICIENT SHARES !!!')
 
-    # try:
-    #     ticker_price = float(util.lookup_price(ticker))
-    #     print("The price of 1 {} share is ${}.".format(ticker, ticker_price))
-    #     amount = int(input("Enter number of shares to purchase: "))
-    #     total_price = amount * ticker_price
-    #     print("You are purchasing {} shares of {} for a total of ${}.".format(amount, ticker, total_price))
-    #     return ticker, amount
-    # except:
-    #     print('Ticker {} not found'.format(ticker))
-    #     raise KeyError
-    
-
-# def buy_stock(account): #Will redistribute to more than 1 function and call from controller, this is skeleton
-    # ticker = input("Ticker: ")
-    # ticker_price = float(util.lookup_price(ticker))
-    # print("The price of 1 {} share is ${}.".format(ticker, ticker_price))
-    # proceed = input("Enter 'Y' to continue OR ticker to search ticker price: ")
-    # while proceed != 'Y':
-    #     ticker = input("Ticker: ")
-    #     ticker_price = float(util.lookup_price(ticker))
-    #     print(ticker_price)
-
-    # if proceed == 'Y':
-    #     amount = input("Number of shares to purchase: ")
-    #     total = (int(amount) * float(ticker_price))
-    #     confirmed = input("Enter your password to confirm purchase of {} Shares of {} (total: ${}): ".format(amount, ticker, total))
-    #     confirmed_hash = util.hash_password(confirmed)
-    #     if account.values['password_hash'] == confirmed_hash:
-    #         if float(account.values['balance']) >= total:
-    #             account.buy(ticker, amount)
-    #         else:
-    #             print('!!!Insuficient Funds!!!')
-    #     else:
-    #         print('Invalid password')
-
