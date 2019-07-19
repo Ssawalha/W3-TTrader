@@ -116,50 +116,62 @@ class Account(ORM):
         except:
             raise KeyError
 
-    def ticker_average_buy_price(self, ticker):
-        # ticker_position = self.get_position_for(ticker)
-        # ticker_position_shares = ticker_position.values['shares']
-        # if ticker_position_shares > 0:
+    def ticker_buy_lst(self, ticker):
         ticker_trades_lst = self.trades_for(ticker)
         buy_trades = []
-        buy_mkt_value =[]
-        prices_sum = 0
-        num_trades = 0
         for trade in ticker_trades_lst:
             if trade.values['buy_sell'] == 'Buy':
                 buy_trades.append(trade)
-                num_trades += 1
-        for trade in buy_trades:
-            buy_mkt_value.append(trade.values['price'] * trade.values['shares']) #this is where you are
-            prices_sum += trade.values['price']
-        
-        average_price = (prices_sum/num_trades)
-        return average_price
+        return buy_trades
 
-    def ticker_average_sell_price(self, ticker):
+    def ticker_sell_lst(self, ticker):
         ticker_trades_lst = self.trades_for(ticker)
         sell_trades = []
-        sell_prices =[]
-        prices_sum = 0
-        num_trades = 0
         for trade in ticker_trades_lst:
             if trade.values['buy_sell'] == 'Sell':
                 sell_trades.append(trade)
-                num_trades += 1
-        for trade in sell_trades:
-            sell_prices.append(trade.values['price'])
-            prices_sum += trade.values['price']
-        
-        average_price = (prices_sum/num_trades)
-        return average_price
+        return sell_trades
 
-    def ticker_profit_loss(self, ticker):
-        average_buy_price  = self.ticker_average_buy_price(ticker)
-        average_sell_price = self.ticker_average_sell_price(ticker)
+    def buy_market_value(self, ticker):
+        buy_lst = self.ticker_buy_lst(ticker)
+        market_value = 0
+        for trade in buy_lst:
+            market_value += (trade.values['shares'] * trade.values['price'])
+        return market_value
 
-        profit_loss = average_sell_price - average_buy_price
-        
-        return profit_loss
-                
+    def buy_trade_volume(self, ticker):
+        buy_lst = self.ticker_buy_lst(ticker)
+        trade_volume = 0
+        for trade in buy_lst: 
+            trade_volume += trade.values['shares']
+        return trade_volume
+   
+    def sell_market_value(self, ticker):
+        sell_lst = self.ticker_sell_lst(ticker)
+        market_value = 0
+        for trade in sell_lst:
+            market_value += (trade.values['shares'] * trade.values['price'])
+        return market_value
+
+    def sell_trade_volume(self, ticker):
+        sell_lst = self.ticker_sell_lst(ticker)
+        trade_volume = 0
+        for trade in sell_lst: 
+            trade_volume += trade.values['shares']
+        return trade_volume
+
+    def profit_loss(self, ticker):
+        buy_mkt_value = self.buy_market_value(ticker)
+        sell_mkt_value = self.sell_market_value(ticker)
+        net_mkt_value = sell_mkt_value - buy_mkt_value
+
+        buy_mkt_volume = self.buy_trade_volume(ticker)
+        sell_mkt_volume = self.sell_trade_volume(ticker)
+        net_mkt_volume = buy_mkt_volume - sell_mkt_volume
+
+        if net_mkt_volume > 0:
+            return (net_mkt_volume * util.lookup_price(ticker)) + net_mkt_value
+        else:
+            return net_mkt_value
 
 

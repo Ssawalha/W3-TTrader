@@ -126,19 +126,20 @@ class TestAccount(unittest.TestCase):
         self.assertEqual(account_position.values['shares'], 4)
         self.assertEqual(account_position.values['username'], 'sami')
     
-    def test_ticker_average_buy_price(self):
-        user = Account.one_from_pk(1)
-        ticker_average_Bprice = user.ticker_average_buy_price('tsla')
-        self.assertEqual(ticker_average_Bprice, 100, "checking for average_buy_price for tsla")
-
-    def test_ticker_average_sell_price(self):
-        user = Account.one_from_pk(1)
-        ticker_average_Sprice = user.ticker_average_sell_price('tsla')
-        self.assertEqual(ticker_average_Sprice, 110, "checking for average_sell_price for tsla")
-
     def test_ticker_profit_loss(self):
         user = Account.one_from_pk(1)
-        profit_loss = user.ticker_profit_loss('tsla')
-        self.assertEqual(profit_loss, 10, 'check that profit_loss is $50 for tsla')
+        profit_loss = user.profit_loss('tsla')
+        tsla_p = util.lookup_price('tsla')
+
+        buy_mkt_value = user.buy_market_value('tsla')
+        sell_mkt_value = user.sell_market_value('tsla')
+        net_mkt_value = sell_mkt_value - buy_mkt_value
+        
+        buy_mkt_volume = user.buy_trade_volume('tsla')
+        sell_mkt_volume = user.sell_trade_volume('tsla')
+        net_mkt_volume = buy_mkt_volume - sell_mkt_volume
+
+        expected_value = (net_mkt_volume * tsla_p) + net_mkt_value
+        self.assertEqual(profit_loss, 840.9000000000001, 'check that profit_loss')
 
 ##############  how do i clean the positions table if a user has 0 of that stock (useless rows)
