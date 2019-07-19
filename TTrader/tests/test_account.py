@@ -125,5 +125,20 @@ class TestAccount(unittest.TestCase):
         self.assertIsInstance(account_position, Position, 'get_position_for returns Position object')
         self.assertEqual(account_position.values['shares'], 4)
         self.assertEqual(account_position.values['username'], 'sami')
+    
+    def test_ticker_average_buy_price(self):
+        user = Account.one_from_pk(1)
+        ticker_average_Bprice = user.ticker_average_buy_price('tsla')
+        self.assertEqual(ticker_average_Bprice, 100, "checking for average_buy_price for tsla")
+
+    def test_ticker_average_sell_price(self):
+        user = Account.one_from_pk(1)
+        ticker_average_Sprice = user.ticker_average_sell_price('tsla')
+        self.assertEqual(ticker_average_Sprice, 110, "checking for average_sell_price for tsla")
+
+    def test_ticker_profit_loss(self):
+        user = Account.one_from_pk(1)
+        profit_loss = user.ticker_profit_loss('tsla')
+        self.assertEqual(profit_loss, 10, 'check that profit_loss is $50 for tsla')
 
 ##############  how do i clean the positions table if a user has 0 of that stock (useless rows)
