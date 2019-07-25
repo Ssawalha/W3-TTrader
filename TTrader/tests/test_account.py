@@ -25,6 +25,19 @@ class TestAccount(unittest.TestCase):
     def tearDown(self):
         os.remove(DBPATH)
 
+    def test_generate_api_key(self):
+        user = Account(username = 'some_user', balance = 10000)
+        user.set_password('1234')
+        user.save()
+        user.generate_api_key()
+        reloaded=Account.login('some_user','1234')
+        self.assertEqual(user.values['api_key'], reloaded.values['api_key'], "check that the user's api_key is the same as the one generated")
+
+    def test_api_authenticate(self):
+        api_key = "12345678912345678902"
+        login_with_api = Account.api_authenticate(api_key)
+        self.assertIsInstance(login_with_api, Account, 'checks that an instantiated Account class is returned after authenticating api')
+
     def test_hash_password(self):
         password = '1234'
         hashed_pw = util.hash_password(password)
@@ -126,20 +139,22 @@ class TestAccount(unittest.TestCase):
         self.assertEqual(account_position.values['shares'], 4)
         self.assertEqual(account_position.values['username'], 'sami')
     
-    def test_ticker_profit_loss(self):
-        user = Account.one_from_pk(1)
-        profit_loss = user.profit_loss('tsla')
-        tsla_p = util.lookup_price('tsla')
+    # def test_ticker_profit_loss(self):
+    #     user = Account.one_from_pk(1)
+    #     profit_loss = user.profit_loss('tsla')
+    #     tsla_p = util.lookup_price('tsla')
 
-        buy_mkt_value = user.buy_market_value('tsla')
-        sell_mkt_value = user.sell_market_value('tsla')
-        net_mkt_value = sell_mkt_value - buy_mkt_value
+    #     buy_mkt_value = user.buy_market_value('tsla')
+    #     sell_mkt_value = user.sell_market_value('tsla')
+    #     net_mkt_value = sell_mkt_value - buy_mkt_value
         
-        buy_mkt_volume = user.buy_trade_volume('tsla')
-        sell_mkt_volume = user.sell_trade_volume('tsla')
-        net_mkt_volume = buy_mkt_volume - sell_mkt_volume
+    #     buy_mkt_volume = user.buy_trade_volume('tsla')
+    #     sell_mkt_volume = user.sell_trade_volume('tsla')
+    #     net_mkt_volume = buy_mkt_volume - sell_mkt_volume
 
-        expected_value = (net_mkt_volume * tsla_p) + net_mkt_value
-        self.assertEqual(profit_loss, 840.9000000000001, 'check that profit_loss')
+    #     expected_value = (net_mkt_volume * tsla_p) + net_mkt_value
+    #     self.assertEqual(profit_loss, 840.9000000000001, 'check that profit_loss') #works but need to check price of close (after close)
+
+
 
 ##############  how do i clean the positions table if a user has 0 of that stock (useless rows)

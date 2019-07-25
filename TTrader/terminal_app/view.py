@@ -15,7 +15,9 @@ def create_account():
         password = input("Choose a password: ")
         password_confirm = input("Please, confirm your password: ")
     if password == password_confirm:
-        return username, password
+        first_name = input("First name: ")
+        last_name = input("Last name: ")
+        return username, password, first_name, last_name
 
 def create_acc_success(username):
         print("\nWelcome {}! Your account has been created, you have a balance of $10,000.".format(username))
@@ -25,6 +27,9 @@ def login_credentials():
     password = input("Enter your password: ")
     return username, password
 
+def view_api_key(api_key):
+    print(api_key)
+
 def account_options(username):
     print("\nHello {}\n".format(username))
     print("1) Check balance")
@@ -32,7 +37,8 @@ def account_options(username):
     print("3) Check trade history")
     print("4) Buy stocks")
     print("5) Sell stocks")
-    print("6) Sign out")
+    print("6) View API Key")
+    print("7) Sign out")
     login_selection = int(input("\nYour Choice: "))
     return login_selection
 

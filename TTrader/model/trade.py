@@ -45,6 +45,17 @@ class Trade(ORM):
         msg = '<Trade pk:{pk}, buy_sell = {buy_sell}, username:{username} ticker:{ticker}, price:{price}, shares:{shares}, time:{time}>'
         return msg.format(**self.values)
 
+    def json(self):
+        return {
+            'pk':self.values['pk'],
+            'buy_sell':self.values['buy_sell'],
+            'username':self.values['username'],
+            'ticker':self.values['ticker'],
+            'price':self.values['price'],
+            'shares':self.values['shares'],
+            'time':self.values['time']
+        }
+
     @classmethod
     def all_with_username(cls, username):
         '''return all Trades rows with username'''

@@ -35,7 +35,17 @@ class Position(ORM):
         msg = '<Positions pk:{pk}, username:{username}, ticker:{ticker}, shares:{shares}>'
         return msg.format(**self.values)
 
+    def json(self):
+        return {
+            'pk':self.values['pk'],
+            'username':self.values['username'],
+            'ticker':self.values['ticker'],
+            'shares':self.values['shares']
+        }
+
     @classmethod
     def all_with_username(cls, username):
         '''return all Position rows with account_pk (username is foreign key in this db)'''
         return cls.all_from_where_clause('WHERE username = ?', (username,))
+
+    

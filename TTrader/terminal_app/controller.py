@@ -14,10 +14,10 @@ def start():
         selection = v.mainmenu()
 
         if selection == 1: #Create Account
-            user_name, password = v.create_account() #fix with try and except
-            new_account = a.Account(username = user_name, balance = 10000) #make it so that unique username | default bal of 10k
+            user_name, password, first_name, last_name = v.create_account() #fix with try and except
+            new_account = a.Account(username = user_name, balance = 10000, first = first_name, last = last_name)
             new_account.set_password(password)
-            new_account.save()
+            new_account.generate_api_key()
             v.create_acc_success(new_account.values['username'])
 
         elif selection == 2: #Log In
@@ -27,7 +27,7 @@ def start():
 
             if account != None:
                 login_selection = 0
-                while login_selection != 6:
+                while login_selection != 7:
                     login_selection = v.account_options(activated.values['username'])
 
                     if login_selection == 1: #Check Balance
@@ -80,6 +80,9 @@ def start():
                                 activated.sell(ticker, amount)
                                 if (balance_before + total) == activated.values['balance']:
                                     v.sale_success()
+                    
+                    elif login_selection == 6: #VIEW API KEY
+                        v.view_api_key(activated.values['api_key'])
             else:
                 print("INVALID CREDENTIALS/LOGIN ERROR")###remove/change later
 

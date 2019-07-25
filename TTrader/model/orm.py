@@ -60,7 +60,6 @@ class ORM:
         if self.values['pk'] is None:
             raise KeyError(self.__repr__() + " is not a row in " +
                             self.tablename)
-
         with sqlite3.connect(self.dbpath) as conn:
             curs = conn.cursor()
             SQL = """DELETE FROM {} WHERE pk = ?; """.format(self.tablename)

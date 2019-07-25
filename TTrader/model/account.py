@@ -6,16 +6,24 @@ from model import util
 from model import position as p
 from model import trade as t    
 
+from random import randint
+
 class Account(ORM):
 
     tablename = "accounts"
-    fields = ["username", "password_hash", "balance"]
+    fields = ["username", "password_hash", "balance", "api_key", "first", "last"]
 
     createsql = '''CREATE TABLE {} (
         pk INTEGER PRIMARY KEY AUTOINCREMENT,
         username VARCHAR NOT NULL,
-        password_hash TEXT, 
-        balance FLOAT, UNIQUE(username));'''.format(tablename)
+        password_hash TEXT,
+        balance FLOAT,
+        first VARCHAR,
+        last VARCHAR,
+        api_key VARCHAR(256),
+        UNIQUE(username),
+        UNIQUE(api_key),
+        );'''.format(tablename)
 
     def __init__(self, **kwargs):
         self.values = OrderedDict()
@@ -23,10 +31,33 @@ class Account(ORM):
         self.values['username'] = kwargs.get('username')
         self.values['password_hash'] = kwargs.get('password_hash')
         self.values['balance'] = kwargs.get('balance')
+        self.values['first'] = kwargs.get('first')
+        self.values['last'] = kwargs.get('last')
+        self.values['api_key'] = kwargs.get('api_key')
 
     def __repr__(self):
-        msg = '<Account pk:{pk}, username:{username}, password_hash:{password_hash}, balance:{balance}>'
+        msg = '<Account pk:{pk}, username:{username}, password_hash:{password_hash}, balance:{balance}, first:{first}, last:{last}, api_key:{api_key}>'
         return msg.format(**self.values)
+
+    def json(self):
+        return {
+            'pk':self.values['pk'],
+            'username':self.values['username'],
+            'password_hash':self.values['password_hash'],
+            'balance':self.values['balance'],
+            'first':self.values['first'],
+            'last':self.values['last'],
+            'api_key':self.values['api_key']
+        }
+
+    @classmethod
+    def api_authenticate(cls, api_key):
+        return cls.one_from_where_clause("WHERE api_key = ?",(api_key,))
+
+    def generate_api_key(self):
+        rand_key = str(randint(1000000000000000000,99999999999999999999))
+        self.values['api_key'] = rand_key
+        self.save()
 
     def set_password(self, password):
         self.values['password_hash'] = util.hash_password(password)
@@ -173,5 +204,3 @@ class Account(ORM):
             return (net_mkt_volume * util.lookup_price(ticker)) + net_mkt_value
         else:
             return net_mkt_value
-
-
