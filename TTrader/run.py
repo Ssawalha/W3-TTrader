@@ -1,6 +1,6 @@
 from terminal_app.controller import start
-# import setup
+import setup
 
-# setup.setup()
+setup.setup()
 
 start()
