@@ -31,11 +31,11 @@ def get_ticker_price(ticker):
     ticker_price = lookup_price(ticker)
     return jsonify({'ticker price is ': ticker_price})
 
-@app.route('/api/account_info/<api_key>', methods=['GET'])
-def get_api_key(api_key):
+@app.route('/api/<api_key>', methods=['GET'])
+def get_account_info(api_key):
     api_login_attempt = Account.api_authenticate(api_key)
     if api_login_attempt != None:
-        return jsonify({"username": api_login_attempt.values['username'], "realname": api_login_attempt.values['realname'],"balance":api_login_attempt.values['balance']})
+        return jsonify({"username": api_login_attempt.values['username'], "balance":api_login_attempt.values['balance'], "first_name": api_login_attempt.values['first'], "last_name": api_login_attempt.values['last']})
     else:
         return jsonify({"error":"404"})
 

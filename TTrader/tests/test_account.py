@@ -2,6 +2,7 @@
 import sqlite3
 import os
 import unittest
+import requests
 
 from model.orm import ORM
 from model.account import Account
@@ -55,7 +56,7 @@ class TestAccount(unittest.TestCase):
         password = '1234'
         password = password.encode()
         
-        self.assertEqual = (util.bcrypt.checkpw(password, hashed_pw), True) #returns True or False
+        self.assertEqual(util.bcrypt.checkpw(password, hashed_pw), True) #returns True or False
         
     def test_save_and_pk_load(self):
         user = Account(username = 'Sami')
@@ -155,6 +156,32 @@ class TestAccount(unittest.TestCase):
     #     expected_value = (net_mkt_volume * tsla_p) + net_mkt_value
     #     self.assertEqual(profit_loss, 840.9000000000001, 'check that profit_loss') #works but need to check price of close (after close)
 
+    def test_route_home(self):
+        response = requests.get("http://127.0.0.1:5000/")
+        self.assertEqual(response.status_code, 200, 'check that the response is what we are expecting')
+        self.assertEqual(response.json(), {'Welcome to':'TTrader api'})
 
+    def test_route_get_ticker_price(self):
+        ticker = 'tsla'
+        price = util.lookup_price('tsla')
+        response = requests.get("http://127.0.0.1:5000/api/get_ticker_price/{}".format(ticker))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'ticker price is ':price})
+    
+    def test_route_account_info(self):
+        api_key = "12345678912345678902"
+        account_info = Account.login("sami", "1234")
+        balance = account_info.values['balance']
+        response = requests.get("http://127.0.0.1:5000/api/{}".format(api_key))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"username": "sami", "balance": balance, "first_name": "sami", "last_name": "s"})
+    
+    def test_route_get_balance(self):
+        api_key = "12345678912345678902"
+        account_info = Account.login("sami", "1234")
+        balance = account_info.values['balance']
+        response = requests.get("http://127.0.0.1:5000/api/{}/balance".format(api_key))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"balance": balance})
 
 ##############  how do i clean the positions table if a user has 0 of that stock (useless rows)
