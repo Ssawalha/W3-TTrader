@@ -14,7 +14,7 @@ def home():
 def create_account():
     if not request.json:
         return jsonify({'error':'bad request'}), 400
-    if 'username' not in request.json or 'password' not in request.json or 'first' not in request.json or 'last' not in request.json:
+    if 'username' not in request.json or 'password' not in request.json or 'first_name' not in request.json or 'last_name' not in request.json:
         return jsonify({'error':'bad request'}), 400
     username = request.json['username']
     password = request.json['password']
@@ -22,9 +22,24 @@ def create_account():
     last = request.json['last_name']
     pword_hash = hash_password(password)
     new_account = Account(username=username, password_hash=pword_hash, balance=10000, first = first, last = last)
-    new_account.save()
     new_account.generate_api_key
-    return jsonify({"Your account was created successfully.":"You start with a balance of $10,000."})
+    new_account.save()
+    return jsonify({"Your account was created successfully.":"You start with a balance of $10,000."},{"Your api key is":new_account.values['api_key']})
+
+@app.route('/api/get_api_key', methods=['POST'])
+def get_api_key():
+    if not request.json:
+        return jsonify({'error':'bad request'}), 400
+    if 'username' not in request.json or 'password' not in request.json:
+        return jsonify({'error':'bad request'}), 400
+    username = request.json['username']
+    password = request.json['password']
+    print(username, password)
+    logged_in = Account.login(username, password)
+    if logged_in != None:
+        return jsonify({"api_key":logged_in.values['api_key']})
+    else:
+        return jsonify({"error":"404"})
 
 @app.route('/api/get_ticker_price/<ticker>', methods=['GET'])
 def get_ticker_price(ticker):
@@ -61,7 +76,7 @@ def get_trades(api_key):
     api_login_attempt = Account.api_authenticate(api_key)
     if api_login_attempt != None:
         trades = api_login_attempt.get_trades()
-        return jsonify({"trades":[trade.json() for trade in trades]}) #should i remove pk from response?
+        return jsonify({"trades":[trade.json() for trade in trades]}) #should i remove pk from response? YES
     else:
         return jsonify({"error":"404"})
 
