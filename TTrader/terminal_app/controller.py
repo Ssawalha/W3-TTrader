@@ -15,7 +15,7 @@ def start():
 
         if selection == 1: #Create Account
             user_name, password, first_name, last_name = v.create_account() #fix with try and except
-            new_account = a.Account(username = user_name, balance = 10000, first = first_name, last = last_name)
+            new_account = a.Account(username = user_name, balance = 0, first = first_name, last = last_name)
             new_account.set_password(password)
             new_account.generate_api_key()
             v.create_acc_success(new_account.values['username'])

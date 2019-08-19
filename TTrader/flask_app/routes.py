@@ -14,17 +14,23 @@ def home():
 def create_account():
     if not request.json:
         return jsonify({'error':'bad request'}), 400
-    if 'username' not in request.json or 'password' not in request.json or 'first_name' not in request.json or 'last_name' not in request.json:
+    if 'username' not in request.json or 'password' not in request.json or 'firstname' not in request.json or 'lastname' not in request.json:
         return jsonify({'error':'bad request'}), 400
+    
     username = request.json['username']
     password = request.json['password']
-    first = request.json['first_name']
-    last = request.json['last_name']
-    pword_hash = hash_password(password)
-    new_account = Account(username=username, password_hash=pword_hash, balance=10000, first = first, last = last)
-    new_account.generate_api_key
-    new_account.save()
-    return jsonify({"Your account was created successfully.":"You start with a balance of $10,000."},{"Your api key is":new_account.values['api_key']})
+    first = request.json['firstname']
+    last = request.json['lastname']
+
+    uniqueUsername = Account().username_preventduplicate(username)
+    if uniqueUsername == None:
+        new_account = Account(username=username, balance=0, first = first, last = last)
+        new_account.set_password(password)
+        new_account.generate_api_key()
+        new_account.save()
+        return jsonify({"Your account was created successfully.":"You start with a balance of $0.00"},{"Your api key is":new_account.values['api_key']})
+    else:
+        return jsonify({"error":"bad username"})
 
 @app.route('/api/get_api_key', methods=['POST'])
 def get_api_key():
@@ -44,7 +50,7 @@ def get_api_key():
 @app.route('/api/get_ticker_price/<ticker>', methods=['GET'])
 def get_ticker_price(ticker):
     ticker_price = lookup_price(ticker)
-    return jsonify({'ticker price is ': ticker_price})
+    return jsonify({'price': ticker_price})
 
 @app.route('/api/<api_key>', methods=['GET'])
 def get_account_info(api_key):
@@ -71,11 +77,29 @@ def get_positions(api_key):
     else:
         return jsonify({"error":"404"})
 
+@app.route('/api/<api_key>/positions/<ticker>')
+def get_positions_for(api_key, ticker):
+    api_login_attempt = Account.api_authenticate(api_key)
+    if api_login_attempt != None:
+        positions = api_login_attempt.trades_for(ticker)
+        return jsonify({"positions":[position.json() for position in positions]}) #should i remove pk from response? YES
+    else:
+        return jsonify({"error":"404"})
+
 @app.route('/api/<api_key>/trades')
 def get_trades(api_key):
     api_login_attempt = Account.api_authenticate(api_key)
     if api_login_attempt != None:
         trades = api_login_attempt.get_trades()
+        return jsonify({"trades":[trade.json() for trade in trades]}) #should i remove pk from response? YES
+    else:
+        return jsonify({"error":"404"})
+
+@app.route('/api/<api_key>/trades/<ticker>')
+def get_trades_for(api_key, ticker):
+    api_login_attempt = Account.api_authenticate(api_key)
+    if api_login_attempt != None:
+        trades = api_login_attempt.trades_for(ticker)
         return jsonify({"trades":[trade.json() for trade in trades]}) #should i remove pk from response? YES
     else:
         return jsonify({"error":"404"})
@@ -93,7 +117,7 @@ def put_deposit(api_key):
         new_bal = current_bal + float(request.json['deposit'])
         api_login_attempt.values['balance'] = new_bal
         api_login_attempt.save()
-        return jsonify({'deposit successful, new balance is':api_login_attempt.values['balance']})
+        return jsonify({'balance':api_login_attempt.values['balance']})
 
 @app.route('/api/<api_key>/sell', methods=['POST'])
 def sell_stock(api_key):
@@ -125,6 +149,47 @@ def buy_stock(api_key):
 
     new_position = api_login_attempt.get_position_for(ticker)
     return jsonify({"purchase successful, new position is":new_position.json()})
+
+@app.route('/api/<api_key>/checking_account_number', methods=['GET'])
+def get_checking_account_number(api_key):
+    api_login_attempt = Account.api_authenticate(api_key)
+    if api_login_attempt != None:
+        return jsonify(({'checking_account_number':api_login_attempt.values['checking_account_number']}))
+    else:
+        return jsonify({"error":"404"})
+
+@app.route('/api/<api_key>/routing_number', methods=['GET'])
+def get_routing_number(api_key):
+    api_login_attempt = Account.api_authenticate(api_key)
+    if api_login_attempt != None:
+        return jsonify(({'routing_number':api_login_attempt.values['routing_number']}))
+    else:
+        return jsonify({"error":"404"})
+
+@app.route('/api/<api_key>/settings/checking_account_number', methods=['PUT'])
+def set_checking_account_number(api_key):
+    api_login_attempt = Account.api_authenticate(api_key)
+    if not request.json:
+        return jsonify({'error':'bad request'}), 400
+    if 'set_checking_account_number' not in request.json:
+        return jsonify({'error':'bad request'}), 400
+    if api_login_attempt != None:
+        api_login_attempt.set_checking_account_number(request.json['set_checking_account_number'])
+        return jsonify({'checking_account_number':api_login_attempt.values['checking_account_number']})
+
+@app.route('/api/<api_key>/settings/routing_number', methods=['PUT'])
+def set_routing_number(api_key):
+    api_login_attempt = Account.api_authenticate(api_key)
+    if not request.json:
+        return jsonify({'error':'bad request'}), 400
+    if 'set_routing_number' not in request.json:
+        return jsonify({'error':'bad request'}), 400
+    if api_login_attempt != None:
+        api_login_attempt.set_routing_number(request.json['set_routing_number'])
+        return jsonify({'routing_number':api_login_attempt.values['routing_number']})
+
+
+
 
 
 #pep3333 --> wsgi | uwhiskey --> uses binary language (not py)

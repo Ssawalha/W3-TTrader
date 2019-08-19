@@ -14,16 +14,19 @@ def schema(dbpath=DBPATH):
         cur.execute(DROPSQL.format(tablename="accounts"))
 
         SQL = '''CREATE TABLE accounts (
-            pk INTEGER PRIMARY KEY AUTOINCREMENT,
-            username VARCHAR NOT NULL,
-            password_hash TEXT,
-            balance FLOAT,
-            first VARCHAR,
-            last VARCHAR,
-            api_key VARCHAR(256),
-            UNIQUE(username),
-            UNIQUE(api_key)
-            );'''
+        pk INTEGER PRIMARY KEY AUTOINCREMENT,
+        username VARCHAR NOT NULL,
+        password_hash TEXT,
+        balance FLOAT,
+        first VARCHAR,
+        last VARCHAR,
+        api_key VARCHAR(256),
+        checking_account_number,
+        routing_number,
+        UNIQUE(username),
+        UNIQUE(api_key),
+        UNIQUE(checking_account_number)
+        );'''
 
         cur.execute(SQL)
 

@@ -11,7 +11,7 @@ from random import randint
 class Account(ORM):
 
     tablename = "accounts"
-    fields = ["username", "password_hash", "balance", "api_key", "first", "last"]
+    fields = ["username", "password_hash", "balance", "api_key", "first", "last", "checking_account_number", "routing_number"]
 
     createsql = '''CREATE TABLE {} (
         pk INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,8 +21,11 @@ class Account(ORM):
         first VARCHAR,
         last VARCHAR,
         api_key VARCHAR(256),
+        checking_account_number,
+        routing_number,
         UNIQUE(username),
         UNIQUE(api_key),
+        UNIQUE(checking_account_number)
         );'''.format(tablename)
 
     def __init__(self, **kwargs):
@@ -34,9 +37,11 @@ class Account(ORM):
         self.values['first'] = kwargs.get('first')
         self.values['last'] = kwargs.get('last')
         self.values['api_key'] = kwargs.get('api_key')
+        self.values['checking_account_number'] = kwargs.get('checking_account_number')
+        self.values['routing_number'] = kwargs.get('routing_number')
 
     def __repr__(self):
-        msg = '<Account pk:{pk}, username:{username}, password_hash:{password_hash}, balance:{balance}, first:{first}, last:{last}, api_key:{api_key}>'
+        msg = '<Account pk:{pk}, username:{username}, password_hash:{password_hash}, balance:{balance}, first:{first}, last:{last}, api_key:{api_key}, checking_account_number:{checking_account_number}, routing_number:{routing_number}>'
         return msg.format(**self.values)
 
     def json(self):
@@ -47,12 +52,18 @@ class Account(ORM):
             'balance':self.values['balance'],
             'first':self.values['first'],
             'last':self.values['last'],
-            'api_key':self.values['api_key']
+            'api_key':self.values['api_key'],
+            'checking_account_number':self.values['checking_account_number'],
+            'routing_number':self.values['routing_number']
         }
 
     @classmethod
     def api_authenticate(cls, api_key):
         return cls.one_from_where_clause("WHERE api_key = ?",(api_key,))
+
+    @classmethod
+    def username_preventduplicate(cls, username):
+        return cls.one_from_where_clause("WHERE username = ?",(username,))
 
     def generate_api_key(self):
         rand_key = str(randint(1000000000000000000,99999999999999999999))
@@ -61,6 +72,14 @@ class Account(ORM):
 
     def set_password(self, password):
         self.values['password_hash'] = util.hash_password(password)
+
+    def set_checking_account_number(self, checking_account_number):
+        self.values['checking_account_number'] = checking_account_number
+        self.save()
+
+    def set_routing_number(self, routing_number):
+        self.values['routing_number'] = routing_number
+        self.save()
     
     @classmethod
     def login(cls, username, password):

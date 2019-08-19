@@ -12,7 +12,7 @@ DBPATH = os.path.join(DIR, DBFILENAME)
 def seed(dbpath=DBPATH):
     ORM.dbpath = dbpath
     
-    default = Account(username='sami', balance=10000.00, first = 'sami', last = 's', api_key = "12345678912345678902")
+    default = Account(username='sami', balance=10000.00, first = 'sami', last = 's', api_key = "12345678912345678902", checking_account_number="", routing_number="")
     default.set_password('1234')
     default.save()
 

@@ -21,7 +21,7 @@ def check_password(username, password):
     user = a.Account()
     user_info = user.one_from_where_clause('WHERE username = ?', (username,))
     if user_info != None:
-        hashed_pw = (user_info.values['password_hash'])
+        hashed_pw = user_info.values['password_hash']
         password = password.encode()
         return bcrypt.checkpw(password, hashed_pw)
     else:
